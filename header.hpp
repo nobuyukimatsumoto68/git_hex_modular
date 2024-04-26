@@ -365,127 +365,127 @@ struct Spin {
   // }
 
 
-  Double Txx_even( const Idx x, const Idx y ) const {
-    assert(0<=x && x<Lx);
-    assert(0<=y && y<Ly);
-    assert( get_char(x,y)==0 );
+  // Double Txx_even( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+  //   assert( get_char(x,y)==0 );
 
-    Idx xp, yp;
-    Double res = 0.0;
-    int mu;
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+  //   int mu;
 
-    mu = 0;
-    cshift( xp, yp, x, y, mu );
-    res += 2.0*K(x, y, mu);
-    res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 0;
+  //   cshift( xp, yp, x, y, mu );
+  //   res += 2.0*K(x, y, mu);
+  //   res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    mu = 1;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 1;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    mu = 2;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 2;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    res /= 3.0;
+  //   res /= 3.0;
 
-    return res;
-  }
+  //   return res;
+  // }
 
-  Double Txx_odd( const Idx x, const Idx y ) const {
-    Idx xp, yp;
-    Double res = 0.0;
-    int mu;
+  // Double Txx_odd( const Idx x, const Idx y ) const {
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+  //   int mu;
 
-    mu = 3;
-    cshift( xp, yp, x, y, mu );
-    res += 2.0*K(x, y, mu);
-    res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 3;
+  //   cshift( xp, yp, x, y, mu );
+  //   res += 2.0*K(x, y, mu);
+  //   res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    mu = 4;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 4;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    mu = 5;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 5;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    res /= 3.0;
+  //   res /= 3.0;
 
-    return res;
-  }
+  //   return res;
+  // }
 
-  Double Txx( const Idx x, const Idx y ) const {
-    assert(0<=x && x<Lx);
-    assert(0<=y && y<Ly);
-    const int c = get_char(x,y);
-    Double res = 0.0;
-    if(c==0) res = Txx_even(x,y);
-    else if(c==2) res = Txx_odd(x,y);
-    else assert(false);
-    return res;
-  }
-
-
-  Double Txy_even( const Idx x, const Idx y ) const {
-    assert( get_char(x,y)==0 );
-
-    Idx xp, yp;
-    Double res = 0.0;
-    int mu;
-
-    mu = 2;
-    cshift( xp, yp, x, y, mu );
-    res += K(x, y, mu);
-    res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    mu = 1;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    res /= std::sqrt(3.0);
-
-    return res;
-  }
+  // Double Txx( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+  //   const int c = get_char(x,y);
+  //   Double res = 0.0;
+  //   if(c==0) res = Txx_even(x,y);
+  //   else if(c==2) res = Txx_odd(x,y);
+  //   else assert(false);
+  //   return res;
+  // }
 
 
-  Double Txy_odd( const Idx x, const Idx y ) const {
-    assert( get_char(x,y)==2 );
+  // Double Txy_even( const Idx x, const Idx y ) const {
+  //   assert( get_char(x,y)==0 );
 
-    Idx xp, yp;
-    Double res = 0.0;
-    int mu;
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+  //   int mu;
 
-    mu = 5;
-    cshift( xp, yp, x, y, mu );
-    res += K(x, y, mu);
-    res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 2;
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    mu = 4;
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+  //   mu = 1;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
 
-    res /= std::sqrt(3.0);
+  //   res /= std::sqrt(3.0);
 
-    return res;
-  }
+  //   return res;
+  // }
 
-  Double Txy( const Idx x, const Idx y ) const {
-    assert(0<=x && x<Lx);
-    assert(0<=y && y<Ly);
-    const int c = get_char(x,y);
-    Double res = 0.0;
-    if(c==0) res = Txy_even(x,y);
-    else if(c==2) res = Txy_odd(x,y);
-    else assert(false);
-    return res;
-  }
+
+  // Double Txy_odd( const Idx x, const Idx y ) const {
+  //   assert( get_char(x,y)==2 );
+
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+  //   int mu;
+
+  //   mu = 5;
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   mu = 4;
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   res /= std::sqrt(3.0);
+
+  //   return res;
+  // }
+
+  // Double Txy( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+  //   const int c = get_char(x,y);
+  //   Double res = 0.0;
+  //   if(c==0) res = Txy_even(x,y);
+  //   else if(c==2) res = Txy_odd(x,y);
+  //   else assert(false);
+  //   return res;
+  // }
 
   Double TxxN( const Idx x, const Idx y ) const {
     assert(0<=x && x<Lx);
@@ -575,18 +575,18 @@ struct Spin {
     return res;
   }
 
-  Double TxxF( const Idx x, const Idx y ) const {
+  Double Txx( const Idx x, const Idx y ) const {
     const Double txx = TxxN(x,y);
     const Double tyy = TyyN(x,y);
 
     return txx - 0.5*(txx+tyy);
   }
 
-  Double TxyF( const Idx x, const Idx y ) const {
+  Double Txy( const Idx x, const Idx y ) const {
     return TxyN(x,y);
   }
 
-  Double TyyF( const Idx x, const Idx y ) const {
+  Double Tyy( const Idx x, const Idx y ) const {
     const Double txx = TxxN(x,y);
     const Double tyy = TyyN(x,y);
 
@@ -601,7 +601,7 @@ struct Spin {
     for(Idx x=0; x<Lx; x++){
       for(Idx y=0; y<Ly; y++){
         if( !is_site(x,y) ) continue;
-        res += TxxF( x, y );
+        res += Txx( x, y );
         counter++;
       }}
 
@@ -610,20 +610,20 @@ struct Spin {
   }
 
 
-  Double TxxN_1pt( ) const {
-    Double res = 0.0;
-    int counter = 0;
+  // Double TxxN_1pt( ) const {
+  //   Double res = 0.0;
+  //   int counter = 0;
 
-    for(Idx x=0; x<Lx; x++){
-      for(Idx y=0; y<Ly; y++){
-        if( !is_site(x,y) ) continue;
-        res += TxxN( x, y );
-        counter++;
-      }}
+  //   for(Idx x=0; x<Lx; x++){
+  //     for(Idx y=0; y<Ly; y++){
+  //       if( !is_site(x,y) ) continue;
+  //       res += TxxN( x, y );
+  //       counter++;
+  //     }}
 
-    res /= counter;
-    return res;
-  }
+  //   res /= counter;
+  //   return res;
+  // }
 
   Double Txy_1pt( ) const {
     Double res = 0.0;
@@ -632,7 +632,7 @@ struct Spin {
     for(Idx x=0; x<Lx; x++){
       for(Idx y=0; y<Ly; y++){
         if( !is_site(x,y) ) continue;
-        res += TxyF( x, y );
+        res += Txy( x, y );
         counter++;
       }}
 
@@ -647,7 +647,7 @@ struct Spin {
     for(Idx x=0; x<Lx; x++){
       for(Idx y=0; y<Ly; y++){
         if( !is_site(x,y) ) continue;
-        res += TyyF( x, y );
+        res += Tyy( x, y );
         counter++;
       }}
 
@@ -655,20 +655,20 @@ struct Spin {
     return res;
   }
 
-  Double TyyN_1pt( ) const {
-    Double res = 0.0;
-    int counter = 0;
+  // Double TyyN_1pt( ) const {
+  //   Double res = 0.0;
+  //   int counter = 0;
 
-    for(Idx x=0; x<Lx; x++){
-      for(Idx y=0; y<Ly; y++){
-        if( !is_site(x,y) ) continue;
-        res += TyyN( x, y );
-        counter++;
-      }}
+  //   for(Idx x=0; x<Lx; x++){
+  //     for(Idx y=0; y<Ly; y++){
+  //       if( !is_site(x,y) ) continue;
+  //       res += TyyN( x, y );
+  //       counter++;
+  //     }}
 
-    res /= counter;
-    return res;
-  }
+  //   res /= counter;
+  //   return res;
+  // }
 
 
   Double TxxTxx_corr( const Idx dx, const Idx dy ) const {
@@ -924,7 +924,7 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        res += TxxF(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
+        res += Txx(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
         counter++;
       }}
 
@@ -973,7 +973,7 @@ struct Spin {
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        res += TxyF(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
+        res += Txy(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
         counter++;
       }}
 
@@ -1021,7 +1021,7 @@ struct Spin {
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        res += TyyF(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
+        res += Tyy(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
         counter++;
       }}
 
@@ -1140,6 +1140,55 @@ struct Spin {
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
         corr[idx(x0,y0)] = Txy_epseps( x0, y0, x1, y1, x2, y2 );
+      }}
+    return corr;
+  }
+
+
+  Double Tyy_epseps( const Idx x0, const Idx y0,
+                       const Idx x1, const Idx y1,
+                       const Idx x2, const Idx y2 ) const {
+    assert(0<=x0 && x0<Lx);
+    assert(0<=y0 && y0<Ly);
+    assert(0<=x1 && x1<Lx);
+    assert(0<=y1 && y1<Ly);
+    assert(0<=x2 && x2<Lx);
+    assert(0<=y2 && y2<Ly);
+
+    Double res = 0.0;
+    int counter = 0;
+
+    for(Idx dx=0; dx<Lx; dx++){
+      for(Idx dy=0; dy<Ly; dy++){
+        // if( !is_site(x,y) ) continue;
+        const Idx x0p = (dx+x0)%Lx;
+        const Idx y0p = (dy+y0)%Ly;
+        const Idx x1p = (dx+x1)%Lx;
+        const Idx y1p = (dy+y1)%Ly;
+        const Idx x2p = (dx+x2)%Lx;
+        const Idx y2p = (dy+y2)%Ly;
+        if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
+        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
+        res += Tyy(x0p,y0p) * eps(x1p,y1p) * eps(x2p,y2p);
+        counter++;
+      }}
+
+    res /= counter;
+    return res;
+  }
+
+
+  std::vector<Double> Tyy_epseps_corr( const Idx x1, const Idx y1,
+                                       const Idx x2, const Idx y2 ) const {
+    std::vector<Double> corr(N, 0.0);
+
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(nparallel)
+    // #pragma omp parallel for num_threads(nparallel) schedule(static)
+#endif
+    for(Idx x0=0; x0<Lx; x0++){
+      for(Idx y0=0; y0<Ly; y0++){
+        corr[idx(x0,y0)] = Tyy_epseps( x0, y0, x1, y1, x2, y2 );
       }}
     return corr;
   }

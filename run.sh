@@ -30,5 +30,5 @@ module load gcc
 
 echo "running program"
 pwd
-./wolff.o $mult
+./wolff.o
 echo "finished"
