@@ -5,78 +5,66 @@
 #include <cassert>
 #include <cmath>
 
-// #include <sstream>
 #include <fstream>
 
 #include <string>
 #include <vector>
 #include <array>
 #include <functional>
-// #include <any>
 
 
 using Idx = std::size_t;
-// using Idx = unsigned long int;
-// using Idx = int;
 using Double = long double;
-// using int = short;
 
-using namespace std;
+constexpr Double m_pi() {return std::atan(1.0l)*4.0l;}
 
 constexpr int TWO = 2;
 constexpr int THREE = 3;
 constexpr int SIX = 6;
 
-int mult = 12;
-Idx Lx = 3*2*mult; // 12
-Idx Ly = 3*1*mult;
+constexpr int mult = 16;
+constexpr Idx Lx = 3*2*mult; // 12
+constexpr Idx Ly = 3*1*mult;
 
-// constexpr Idx Lx = 6*4; // 12
-// constexpr Idx Ly = 2*Lx;
-constexpr int nparallel = 8; //12
+constexpr int nparallel = 12; //12
 
 
 constexpr int nu = 1; // PP, PA, AA, AP
 
-constexpr Double tt = 0.1;
+constexpr Double tt = 0.1; // 48.0l/(Lx*Ly*2.0l/3.0l);
 // constexpr Double kappa[3] = {
 //   2.0 - 4.0/3.0 * std::exp(-tt),
 //   2.0/3.0 * std::exp(-tt),
 //   2.0/3.0 * std::exp(-tt)
 // };
 constexpr Double kappa[3] = {
-  2.0/3.0 + 2.0*tt,
-  2.0/3.0 - tt,
-  2.0/3.0 - tt
+  2.0l/3.0l + 2.0l/3.0l*tt,
+  2.0l/3.0l - 1.0l/3.0l*tt,
+  2.0l/3.0l - 1.0l/3.0l*tt
 };
-const Double cos6 = std::cos(M_PI/6.0);
+const Double cos6 = std::cos(m_pi()/6.0l);
 
 const Double Betac[3] = {
   std::atanh( cos6 * kappa[0] ),
   std::atanh( cos6 * kappa[1] ),
   std::atanh( cos6 * kappa[2] )
-  // 0.5 * std::log(2.0 + std::sqrt(3.0)),
-  // 0.5 * std::log(2.0 + std::sqrt(3.0)),
-  // 0.5 * std::log(2.0 + std::sqrt(3.0))
 };
 
 const Double B[3] = {
-  cos6 / (1.0 - kappa[0]*kappa[0] * cos6 * cos6),
-  cos6 / (1.0 - kappa[1]*kappa[1] * cos6 * cos6),
-  cos6 / (1.0 - kappa[2]*kappa[2] * cos6 * cos6)
+  cos6 / (1.0l - kappa[0]*kappa[0] * cos6 * cos6),
+  cos6 / (1.0l - kappa[1]*kappa[1] * cos6 * cos6),
+  cos6 / (1.0l - kappa[2]*kappa[2] * cos6 * cos6)
 };
 //
-// constexpr Double alat = 1.0/Lx;
-// constexpr Double xipsi = std::sqrt( 1.5*std::sqrt(3.0)*alat / (2.0*M_PI) );
 
 #ifndef _OPENMP
-// int omp_get_thread_num() { return 0; }
+int omp_get_thread_num() { return 0; }
 #endif
 
 
 
 std::mt19937 gen;
-std::uniform_real_distribution<Double> d01D(0.0, 1.0); // (1, 6);
+std::uniform_real_distribution<Double> d01D(0.0l, 1.0l); // (1, 6);
 std::uniform_int_distribution<int> d01I(0, 1); // (1, 6);
 std::uniform_int_distribution<Idx> d0N(0, Lx*Ly-1); // (1, 6);
 void set_gen( const int seed ) {
@@ -195,7 +183,7 @@ struct Spin {
   }
 
   Double ss_even( const int mu ) const {
-    Double tot = 0.0;
+    Double tot = 0.0l;
     Idx counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -212,7 +200,7 @@ struct Spin {
     assert(0<=dx && dx<Lx);
     assert(0<=dy && dy<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -232,7 +220,7 @@ struct Spin {
 
 
   std::vector<Double> ss_corr() const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
@@ -252,23 +240,23 @@ struct Spin {
     assert(0<=y && y<Ly);
     assert( is_site(x,y) );
 
-    Double res = 0.0;
+    Double res = 0.0l;
     for(int mu=0; mu<SIX; mu++){
       if( !is_link(x,y,mu) ) continue;
       Idx xp, yp;
       cshift( xp, yp, x, y, mu );
       Double tmp = (*this)(x,y) * (*this)(xp,yp);
       tmp -= kappa[mu%3]*cos6;
-      res += 0.5*kappa[mu%3]*B[mu%3] * tmp;
+      res += 0.5l*kappa[mu%3]*B[mu%3] * tmp;
     }
-    res -= 1.0/4.0;
+    res -= 0.25l;
 
     return res;
   }
 
 
   Double eps_1pt() const {
-    Double res = 0.0;
+    Double res = 0.0l;
 
 // #ifdef _OPENMP
 // #pragma omp parallel for num_threads(nparallel)
@@ -290,7 +278,7 @@ struct Spin {
     assert(0<=dx && dx<Lx);
     assert(0<=dy && dy<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -310,7 +298,7 @@ struct Spin {
 
 
   std::vector<Double> epseps_corr() const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
@@ -338,180 +326,17 @@ struct Spin {
     res -= kappa[mu%3]*cos6;
     res *= B[mu%3];
 
-    res -= 1.0/4.0;
+    res -= 0.25l;
 
     return res;
   }
-
-
-  // Double K_1pt( const int mu ) const {
-  //   // std::vector<Double> tmp(nparallel, 0.0);
-  //   // std::vector<int> counter(nparallel, 0);
-  //   int counter = 0;
-  //   Double res = 0.0;
-
-  //   // #ifdef _OPENMP
-  //   // #pragma omp parallel for num_threads(nparallel) schedule(static)
-  //   // #endif
-  //   for(Idx x=0; x<Lx; x++){
-  //     for(Idx y=0; y<Ly; y++){
-  //       if( !is_link(x,y,mu) ) continue;
-  //       res += K( x, y, mu );
-  //       counter++;
-  //       // tmp[omp_get_thread_num()] += K( x, y, mu );
-  //       // counter[omp_get_thread_num()]++;
-  //     }}
-
-  //   // Double res = 0.0;
-  //   // int tot = 0;
-  //   // for(int i=0; i<nparallel; i++) {
-  //   //   res += tmp[i];
-  //   //   tot += counter[i];
-  //   // }
-  //   res /= counter;
-  //   // res /= tot;
-  //   return res;
-  // }
-
-
-  // Double Txx_even( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-  //   assert( get_char(x,y)==0 );
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-  //   int mu;
-
-  //   mu = 0;
-  //   cshift( xp, yp, x, y, mu );
-  //   res += 2.0*K(x, y, mu);
-  //   res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 1;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 2;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res /= 3.0;
-
-  //   return res;
-  // }
-
-  // Double Txx_odd( const Idx x, const Idx y ) const {
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-  //   int mu;
-
-  //   mu = 3;
-  //   cshift( xp, yp, x, y, mu );
-  //   res += 2.0*K(x, y, mu);
-  //   res -= ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 4;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 5;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res /= 3.0;
-
-  //   return res;
-  // }
-
-  // Double Txx( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-  //   const int c = get_char(x,y);
-  //   Double res = 0.0;
-  //   if(c==0) res = Txx_even(x,y);
-  //   else if(c==2) res = Txx_odd(x,y);
-  //   else assert(false);
-  //   return res;
-  // }
-
-
-  // Double Txy_even( const Idx x, const Idx y ) const {
-  //   assert( get_char(x,y)==0 );
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-  //   int mu;
-
-  //   mu = 2;
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 1;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res /= std::sqrt(3.0);
-
-  //   return res;
-  // }
-
-
-  // Double Txy_odd( const Idx x, const Idx y ) const {
-  //   assert( get_char(x,y)==2 );
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-  //   int mu;
-
-  //   mu = 5;
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu = 4;
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5 * ( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res /= std::sqrt(3.0);
-
-  //   return res;
-  // }
-
-  // Double Txy( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-  //   const int c = get_char(x,y);
-  //   Double res = 0.0;
-  //   if(c==0) res = Txy_even(x,y);
-  //   else if(c==2) res = Txy_odd(x,y);
-  //   else assert(false);
-  //   return res;
-  // }
 
 
   Double TA( const Idx x, const Idx y ) const {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    // int c = get_char(x,y);
-    // int dx=-1;
-    // int mu = 0;
-    // if(c==2) {
-    //   dx = 1;
-    //   mu = 3;
-    // }
-    // else if(c==1) assert(false);
-
-    // Idx xp = (x+dx+Lx)%Lx;
-    Double res = 0.0;
+    Double res = 0.0l;
     int mu=0;
 
     int c = get_char(x,y);
@@ -531,20 +356,7 @@ struct Spin {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    // int c = get_char(x,y);
-    // int dx=1, dy=-1;
-    // int mu = 1;
-    // if(c==2) {
-    //   dx = -1;
-    //   dy = 1;
-    //   mu = 4;
-    // }
-    // else if(c==1) assert(false);
-
-    // Idx xp = (x+dx+Lx)%Lx;
-    // Idx yp = (y+dy+Ly)%Ly;
-
-    Double res = 0.0;
+    Double res = 0.0l;
     int mu=1;
 
     int c = get_char(x,y);
@@ -555,7 +367,7 @@ struct Spin {
     cshift( xp, yp, x, y, mu );
 
     res += K(x, y, mu);
-    res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+    res -= 0.5l*( eps(x,y)+eps(xp,yp) ); // mu deriv
 
     return res;
   }
@@ -565,20 +377,7 @@ struct Spin {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    // int c = get_char(x,y);
-    // int dy=1;
-    // int mu = 2;
-    // if(c==2) {
-    //   dy = -1;
-    //   mu = 5;
-    // }
-    // else if(c==1) assert(false);
-
-    // Idx yp = (y+dy+Ly)%Ly;
-
-    // Double res = 0.0;
-
-    Double res = 0.0;
+    Double res = 0.0l;
     int mu=2;
 
     int c = get_char(x,y);
@@ -589,121 +388,30 @@ struct Spin {
     cshift( xp, yp, x, y, mu );
 
     res += K(x, y, mu);
-    res -= 0.5*( eps(x,y)+eps(xp,yp) );
+    res -= 0.5l*( eps(x,y)+eps(xp,yp) );
 
     return res;
   }
-
-  // Double TxxN( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-  //   int mu=0;
-
-  //   int c = get_char(x,y);
-  //   if(c==2) mu+=3;
-  //   else if(c==1) assert(false);
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res -= 0.25;
-
-  //   return res;
-  // }
-
-  // Double TxyN( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-
-  //   int c = get_char(x,y);
-  //   if(c==1) assert(false);
-
-  //   int mu=2;
-  //   if(c==2) mu+=3;
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu=1;
-  //   if(c==2) mu+=3;
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= K(x, y, mu);
-  //   res += 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res /= std::sqrt(3.0);
-
-  //   return res;
-  // }
-
-  // Double TyyN( const Idx x, const Idx y ) const {
-  //   assert(0<=x && x<Lx);
-  //   assert(0<=y && y<Ly);
-
-  //   Idx xp, yp;
-  //   Double res = 0.0;
-
-  //   int c = get_char(x,y);
-  //   if(c==1) assert(false);
-
-  //   int mu=2;
-  //   if(c==2) mu+=3;
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu=1;
-  //   if(c==2) mu+=3;
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res += K(x, y, mu);
-  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   mu=0;
-  //   if(c==2) mu+=3;
-
-  //   cshift( xp, yp, x, y, mu );
-  //   res -= 0.5*K(x, y, mu);
-  //   res += 0.25*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-  //   res *= 2.0/3.0;
-
-  //   res -= 0.25;
-
-  //   return res;
-  // }
 
   Double Txx( const Idx x, const Idx y ) const {
     const Double tA = TA(x,y);
     const Double tB = TB(x,y);
     const Double tC = TC(x,y);
-    return 1.0/3.0 * ( 2.0*tA - tB - tC );
+    return 1.0l/3.0l * ( 2.0l*tA - tB - tC );
   }
 
   Double Txy( const Idx x, const Idx y ) const {
     const Double tB = TB(x,y);
     const Double tC = TC(x,y);
-    return 1.0/std::sqrt(3.0) * ( tC - tB );
+    return 1.0l/std::sqrt(3.0l) * ( tC - tB );
   }
 
   Double Tyy( const Idx x, const Idx y ) const {
-    // const Double tA = TA(x,y);
-    // const Double tB = TB(x,y);
-    // const Double tC = TC(x,y);
     return -Txx(x,y);
   }
 
   Double Txx_1pt( ) const {
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -717,24 +425,8 @@ struct Spin {
     return res;
   }
 
-
-  // Double TxxN_1pt( ) const {
-  //   Double res = 0.0;
-  //   int counter = 0;
-
-  //   for(Idx x=0; x<Lx; x++){
-  //     for(Idx y=0; y<Ly; y++){
-  //       if( !is_site(x,y) ) continue;
-  //       res += TxxN( x, y );
-  //       counter++;
-  //     }}
-
-  //   res /= counter;
-  //   return res;
-  // }
-
   Double Txy_1pt( ) const {
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -749,7 +441,7 @@ struct Spin {
   }
 
   Double Tyy_1pt( ) const {
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -763,27 +455,11 @@ struct Spin {
     return res;
   }
 
-  // Double TyyN_1pt( ) const {
-  //   Double res = 0.0;
-  //   int counter = 0;
-
-  //   for(Idx x=0; x<Lx; x++){
-  //     for(Idx y=0; y<Ly; y++){
-  //       if( !is_site(x,y) ) continue;
-  //       res += TyyN( x, y );
-  //       counter++;
-  //     }}
-
-  //   res /= counter;
-  //   return res;
-  // }
-
-
   Double TxxTxx_corr( const Idx dx, const Idx dy ) const {
     assert(0<=dx && dx<Lx);
     assert(0<=dy && dy<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -804,7 +480,7 @@ struct Spin {
     assert(0<=dx && dx<Lx);
     assert(0<=dy && dy<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx x=0; x<Lx; x++){
@@ -823,11 +499,10 @@ struct Spin {
 
 
   std::vector<Double> TxxTxx_corr() const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
@@ -838,11 +513,10 @@ struct Spin {
 
 
   std::vector<Double> TxxTxy_corr() const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
@@ -850,163 +524,6 @@ struct Spin {
       }}
     return corr;
   }
-
-
-  //  Double Txx_eps( const Idx dx1, const Idx dy1 ) const {
-//     assert(0<=dx1 && dx1<Lx);
-//     assert(0<=dy1 && dy1<Ly);
-
-//     Double res = 0.0;
-//     int counter = 0;
-
-//     for(Idx x=0; x<Lx; x++){
-//       for(Idx y=0; y<Ly; y++){
-//         if( !is_site(x,y) ) continue;
-//         const Idx x1 = (x+dx1)%Lx;
-//         const Idx y1 = (y+dy1)%Ly;
-//         if( !is_site(x1,y1) ) continue;
-//         res += Txx(x,y) * eps(x1,y1);
-//         counter++;
-//       }}
-
-//     res /= counter;
-//     return res;
-//   }
-
-
-//   std::vector<Double> Txx_eps_corr() const {
-//     std::vector<Double> corr(N, 0.0);
-
-// #ifdef _OPENMP
-// #pragma omp parallel for num_threads(nparallel)
-//     // #pragma omp parallel for num_threads(nparallel) schedule(static)
-// #endif
-//     for(Idx dx1=0; dx1<Lx; dx1++){
-//       for(Idx dy1=0; dy1<Ly; dy1++){
-//         corr[idx(dx1,dy1)] = Txx_eps( dx1, dy1 );
-//       }}
-//     return corr;
-//   }
-
-
-//   Double Txy_eps( const Idx dx1, const Idx dy1 ) const {
-//     assert(0<=dx1 && dx1<Lx);
-//     assert(0<=dy1 && dy1<Ly);
-
-//     Double res = 0.0;
-//     int counter = 0;
-
-//     for(Idx x=0; x<Lx; x++){
-//       for(Idx y=0; y<Ly; y++){
-//         if( !is_site(x,y) ) continue;
-//         const Idx x1 = (x+dx1)%Lx;
-//         const Idx y1 = (y+dy1)%Ly;
-//         if( !is_site(x1,y1) ) continue;
-//         res += Txy(x,y) * eps(x1,y1);
-//         counter++;
-//       }}
-
-//     res /= counter;
-//     return res;
-//   }
-
-
-//   std::vector<Double> Txy_eps_corr() const {
-//     std::vector<Double> corr(N, 0.0);
-
-// #ifdef _OPENMP
-// #pragma omp parallel for num_threads(nparallel)
-//     // #pragma omp parallel for num_threads(nparallel) schedule(static)
-// #endif
-//     for(Idx dx1=0; dx1<Lx; dx1++){
-//       for(Idx dy1=0; dy1<Ly; dy1++){
-//         corr[idx(dx1,dy1)] = Txy_eps( dx1, dy1 );
-//       }}
-//     return corr;
-//   }
-
-
-//   Double Txx_ss( const Idx dx1, const Idx dy1, const Idx dx2, const Idx dy2 ) const {
-//     assert(0<=dx1 && dx1<Lx);
-//     assert(0<=dy1 && dy1<Ly);
-//     assert(0<=dx2 && dx2<Lx);
-//     assert(0<=dy2 && dy2<Ly);
-
-//     Double res = 0.0;
-//     int counter = 0;
-
-//     for(Idx x=0; x<Lx; x++){
-//       for(Idx y=0; y<Ly; y++){
-//         if( !is_site(x,y) ) continue;
-//         const Idx x1 = (x+dx1)%Lx;
-//         const Idx y1 = (y+dy1)%Ly;
-//         const Idx x2 = (x+dx2)%Lx;
-//         const Idx y2 = (y+dy2)%Ly;
-//         if( !is_site(x1,y1) || !is_site(x2,y2) ) continue;
-//         res += Txx(x,y) * (*this)(x1,y1) * (*this)(x2,y2);
-//         counter++;
-//       }}
-
-//     res /= counter;
-//     return res;
-//   }
-
-
-//   std::vector<Double> Txx_ss_corr( const Idx dx1, const Idx dy1 ) const {
-//     std::vector<Double> corr(N, 0.0);
-
-// #ifdef _OPENMP
-// #pragma omp parallel for num_threads(nparallel)
-//     // #pragma omp parallel for num_threads(nparallel) schedule(static)
-// #endif
-//     for(Idx dx2=0; dx2<Lx; dx2++){
-//       for(Idx dy2=0; dy2<Ly; dy2++){
-//         corr[idx(dx2,dy2)] = Txx_ss( dx1, dy1, dx2, dy2 );
-//       }}
-//     return corr;
-//   }
-
-
-
-//   Double Txy_ss( const Idx dx1, const Idx dy1, const Idx dx2, const Idx dy2 ) const {
-//     assert(0<=dx1 && dx1<Lx);
-//     assert(0<=dy1 && dy1<Ly);
-//     assert(0<=dx2 && dx2<Lx);
-//     assert(0<=dy2 && dy2<Ly);
-
-//     Double res = 0.0;
-//     int counter = 0;
-
-//     for(Idx x=0; x<Lx; x++){
-//       for(Idx y=0; y<Ly; y++){
-//         if( !is_site(x,y) ) continue;
-//         const Idx x1 = (x+dx1)%Lx;
-//         const Idx y1 = (y+dy1)%Ly;
-//         const Idx x2 = (x+dx2)%Lx;
-//         const Idx y2 = (y+dy2)%Ly;
-//         if( !is_site(x1,y1) || !is_site(x2,y2) ) continue;
-//         res += Txy(x,y) * (*this)(x1,y1) * (*this)(x2,y2);
-//         counter++;
-//       }}
-
-//     res /= counter;
-//     return res;
-//   }
-
-
-//   std::vector<Double> Txy_ss_corr( const Idx dx1, const Idx dy1 ) const {
-//     std::vector<Double> corr(N, 0.0);
-
-// #ifdef _OPENMP
-// #pragma omp parallel for num_threads(nparallel)
-//     // #pragma omp parallel for num_threads(nparallel) schedule(static)
-// #endif
-//     for(Idx dx2=0; dx2<Lx; dx2++){
-//       for(Idx dy2=0; dy2<Ly; dy2++){
-//         corr[idx(dx2,dy2)] = Txy_ss( dx1, dy1, dx2, dy2 );
-//       }}
-//     return corr;
-//   }
 
 
   Double Txx_ss( const Idx x0, const Idx y0,
@@ -1019,12 +536,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1043,11 +559,10 @@ struct Spin {
 
   std::vector<Double> Txx_ss_corr( const Idx x1, const Idx y1,
                                    const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1067,12 +582,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1080,7 +594,6 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         res += Txy(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
         counter++;
       }}
@@ -1092,11 +605,10 @@ struct Spin {
 
   std::vector<Double> Txy_ss_corr( const Idx x1, const Idx y1,
                                    const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1115,12 +627,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1128,7 +639,6 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         res += Tyy(x0p,y0p) * (*this)(x1p,y1p) * (*this)(x2p,y2p);
         counter++;
       }}
@@ -1140,11 +650,10 @@ struct Spin {
 
   std::vector<Double> Tyy_ss_corr( const Idx x1, const Idx y1,
                                    const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1165,12 +674,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1178,7 +686,6 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         res += Txx(x0p,y0p) * eps(x1p,y1p) * eps(x2p,y2p);
         counter++;
       }}
@@ -1190,11 +697,10 @@ struct Spin {
 
   std::vector<Double> Txx_epseps_corr( const Idx x1, const Idx y1,
                                        const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1214,12 +720,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1227,7 +732,6 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         res += Txy(x0p,y0p) * eps(x1p,y1p) * eps(x2p,y2p);
         counter++;
       }}
@@ -1239,11 +743,10 @@ struct Spin {
 
   std::vector<Double> Txy_epseps_corr( const Idx x1, const Idx y1,
                                        const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1263,12 +766,11 @@ struct Spin {
     assert(0<=x2 && x2<Lx);
     assert(0<=y2 && y2<Ly);
 
-    Double res = 0.0;
+    Double res = 0.0l;
     int counter = 0;
 
     for(Idx dx=0; dx<Lx; dx++){
       for(Idx dy=0; dy<Ly; dy++){
-        // if( !is_site(x,y) ) continue;
         const Idx x0p = (dx+x0)%Lx;
         const Idx y0p = (dy+y0)%Ly;
         const Idx x1p = (dx+x1)%Lx;
@@ -1276,7 +778,6 @@ struct Spin {
         const Idx x2p = (dx+x2)%Lx;
         const Idx y2p = (dy+y2)%Ly;
         if( !is_site(x0p,y0p) || !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
-        // if( !is_site(x1p,y1p) || !is_site(x2p,y2p) ) continue;
         res += Tyy(x0p,y0p) * eps(x1p,y1p) * eps(x2p,y2p);
         counter++;
       }}
@@ -1288,11 +789,10 @@ struct Spin {
 
   std::vector<Double> Tyy_epseps_corr( const Idx x1, const Idx y1,
                                        const Idx x2, const Idx y2 ) const {
-    std::vector<Double> corr(N, 0.0);
+    std::vector<Double> corr(N, 0.0l);
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nparallel)
-    // #pragma omp parallel for num_threads(nparallel) schedule(static)
 #endif
     for(Idx x0=0; x0<Lx; x0++){
       for(Idx y0=0; y0<Ly; y0++){
@@ -1300,49 +800,6 @@ struct Spin {
       }}
     return corr;
   }
-
-
-
-//   Double Txy_epseps( const Idx dx1, const Idx dy1, const Idx dx2, const Idx dy2 ) const {
-//     assert(0<=dx1 && dx1<Lx);
-//     assert(0<=dy1 && dy1<Ly);
-//     assert(0<=dx2 && dx2<Lx);
-//     assert(0<=dy2 && dy2<Ly);
-
-//     Double res = 0.0;
-//     int counter = 0;
-
-//     for(Idx x=0; x<Lx; x++){
-//       for(Idx y=0; y<Ly; y++){
-//         if( !is_site(x,y) ) continue;
-//         const Idx x1 = (x+dx1)%Lx;
-//         const Idx y1 = (y+dy1)%Ly;
-//         const Idx x2 = (x+dx2)%Lx;
-//         const Idx y2 = (y+dy2)%Ly;
-//         if( !is_site(x1,y1) || !is_site(x2,y2) ) continue;
-//         res += Txy(x,y) * eps(x1,y1) * eps(x2,y2);
-//         counter++;
-//       }}
-
-//     res /= counter;
-//     return res;
-//   }
-
-
-//   std::vector<Double> Txy_epseps_corr( const Idx dx1, const Idx dy1 ) const {
-//     std::vector<Double> corr(N, 0.0);
-
-// #ifdef _OPENMP
-// #pragma omp parallel for num_threads(nparallel)
-//     // #pragma omp parallel for num_threads(nparallel) schedule(static)
-// #endif
-//     for(Idx dx2=0; dx2<Lx; dx2++){
-//       for(Idx dy2=0; dy2<Ly; dy2++){
-//         corr[idx(dx2,dy2)] = Txy_epseps( dx1, dy1, dx2, dy2 );
-//       }}
-//     return corr;
-//   }
-
 
 
 
@@ -1363,7 +820,7 @@ struct Spin {
     std::ofstream of( str, std::ios::out | std::ios::binary | std::ios::trunc);
     if(!of) assert(false);
 
-    int tmp = 0.0;
+    int tmp = 0.0l;
     for(Idx i=0; i<Lx*Ly; i++){
       tmp = (*this)[i];
       of.write( (char*) &tmp, sizeof(int) );
@@ -1393,7 +850,7 @@ void heatbath( Spin& s ){
   for(Idx i=0; i<Lx*Ly; i++){
     if( !is_site(i) ) continue;
 
-    double henv = 0.0;
+    Double henv = 0.0l;
     for(int mu=0; mu<SIX; mu++){
       if( !is_link(i,mu) ) continue;
       Idx j;
@@ -1401,10 +858,9 @@ void heatbath( Spin& s ){
       henv += Betac[mu%3] * s[j];
     }
 
-    // const Double p = std::exp(2.0*beta_c*senv);
-    const Double p = std::exp(2.0 * henv);
+    const Double p = std::exp(2.0l * henv);
     const Double r = dist01();
-    if( r<p/(1.0+p) ) s[i] = 1;
+    if( r<p/(1.0l+p) ) s[i] = 1;
     else s[i] = -1;
   }
 }
@@ -1433,8 +889,7 @@ void wolff( Spin& s ){
       if( s[q] == s[p] || is_cluster[q]==1 ) continue; // s[x]*sR[y]<0 or y in c
 
       const Double r = dist01();
-      if( r < std::exp(-2.0 * Betac[mu%3]) ) continue; // reject
-      // if( r < std::exp(-2.0 * beta_c) ) continue; // reject
+      if( r < std::exp(-2.0l * Betac[mu%3]) ) continue; // reject
 
       is_cluster[q] = 1;
       stack_idx.push(q);
@@ -1448,7 +903,7 @@ struct Scalar {
   Double v;
 
   Scalar()
-    : v(0.0)
+    : v(0.0l)
   {}
 
   Scalar( const Double v_ )
@@ -1459,7 +914,7 @@ struct Scalar {
     : v(other.v)
   {}
 
-  void clear(){ v = 0.0; }
+  void clear(){ v = 0.0l; }
 
   Scalar& operator+=(const Scalar& rhs){
     v += rhs.v;
@@ -1497,7 +952,7 @@ struct Corr {
   std::vector<Double> v;
 
   Corr()
-    : v(Lx*Ly, 0.0)
+    : v(Lx*Ly, 0.0l)
   {}
 
   Corr( const std::vector<Double> v_ )
@@ -1511,7 +966,7 @@ struct Corr {
   Double& operator()(const Idx x, const Idx y) { return v[idx(x,y)]; }
   Double operator()(const Idx x, const Idx y) const { return v[idx(x,y)]; }
 
-  void clear(){ for(Idx i=0; i<Lx*Ly; i++) v[i] = 0.0; }
+  void clear(){ for(Idx i=0; i<Lx*Ly; i++) v[i] = 0.0l; }
 
   Corr& operator+=(const Corr& rhs)
   {

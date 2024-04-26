@@ -12,12 +12,11 @@
 
 int main( int argc, char *argv[] ){
 
-  if (argc>1){
-    mult = atoi(argv[1]);
-  }
-  Lx = 3*2*mult; // 12
-  Ly = 3*1*mult;
-
+  // if (argc>1){
+  //   mult = atoi(argv[1]);
+  // }
+  // Lx = 3*2*mult; // 12
+  // Ly = 3*1*mult;
 
   std::cout << std::scientific << std::setprecision(15);
   std::cout << "int = " << std::numeric_limits<int>::digits10 << std::endl;
