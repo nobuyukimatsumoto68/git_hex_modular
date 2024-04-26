@@ -18,4 +18,4 @@ wolff.o: wolff_hex.cc header.hpp
 	$(CXX) $< $(INCLUDES) $(LDFLAGS) $(CXXFLAGS) -o $(DIR)$@
 
 test.o: wolff_hex.cc header.hpp
-	$(CXX) $< $(INCLUDES) $(LDFLAGS) $(CXXFLAGS2) -pg -o $(DIR)$@
+	$(CXX) $< $(INCLUDES) $(LDFLAGS) $(CXXFLAGS2) -o $(DIR)$@

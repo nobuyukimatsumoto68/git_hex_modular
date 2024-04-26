@@ -27,22 +27,27 @@ constexpr int TWO = 2;
 constexpr int THREE = 3;
 constexpr int SIX = 6;
 
-int mult = 8;
+int mult = 12;
 Idx Lx = 3*2*mult; // 12
 Idx Ly = 3*1*mult;
 
 // constexpr Idx Lx = 6*4; // 12
 // constexpr Idx Ly = 2*Lx;
-constexpr int nparallel = 12; //12
+constexpr int nparallel = 8; //12
 
 
 constexpr int nu = 1; // PP, PA, AA, AP
 
 constexpr Double tt = 0.1;
+// constexpr Double kappa[3] = {
+//   2.0 - 4.0/3.0 * std::exp(-tt),
+//   2.0/3.0 * std::exp(-tt),
+//   2.0/3.0 * std::exp(-tt)
+// };
 constexpr Double kappa[3] = {
-  2.0 - 4.0/3.0 * std::exp(-tt),
-  2.0/3.0 * std::exp(-tt),
-  2.0/3.0 * std::exp(-tt)
+  2.0/3.0 + 2.0*tt,
+  2.0/3.0 - tt,
+  2.0/3.0 - tt
 };
 const Double cos6 = std::cos(M_PI/6.0);
 
@@ -252,10 +257,11 @@ struct Spin {
       if( !is_link(x,y,mu) ) continue;
       Idx xp, yp;
       cshift( xp, yp, x, y, mu );
-      res += (*this)(x,y) * (*this)(xp,yp);
-      res *= 0.5 * kappa[mu%3] * B[mu%3];
+      Double tmp = (*this)(x,y) * (*this)(xp,yp);
+      tmp -= kappa[mu%3]*cos6;
+      res += 0.5*kappa[mu%3]*B[mu%3] * tmp;
     }
-    res -= 1.0;
+    res -= 1.0/4.0;
 
     return res;
   }
@@ -331,6 +337,9 @@ struct Spin {
     Double res = (*this)(x,y)*(*this)(xp,yp);
     res -= kappa[mu%3]*cos6;
     res *= B[mu%3];
+
+    res -= 1.0/4.0;
+
     return res;
   }
 
@@ -487,11 +496,21 @@ struct Spin {
   //   return res;
   // }
 
-  Double TxxN( const Idx x, const Idx y ) const {
+
+  Double TA( const Idx x, const Idx y ) const {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    Idx xp, yp;
+    // int c = get_char(x,y);
+    // int dx=-1;
+    // int mu = 0;
+    // if(c==2) {
+    //   dx = 1;
+    //   mu = 3;
+    // }
+    // else if(c==1) assert(false);
+
+    // Idx xp = (x+dx+Lx)%Lx;
     Double res = 0.0;
     int mu=0;
 
@@ -499,100 +518,189 @@ struct Spin {
     if(c==2) mu+=3;
     else if(c==1) assert(false);
 
+    Idx xp, yp;
     cshift( xp, yp, x, y, mu );
+
     res += K(x, y, mu);
     res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    res -= 0.25;
 
     return res;
   }
 
-  Double TxyN( const Idx x, const Idx y ) const {
+  Double TB( const Idx x, const Idx y ) const {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    Idx xp, yp;
+    // int c = get_char(x,y);
+    // int dx=1, dy=-1;
+    // int mu = 1;
+    // if(c==2) {
+    //   dx = -1;
+    //   dy = 1;
+    //   mu = 4;
+    // }
+    // else if(c==1) assert(false);
+
+    // Idx xp = (x+dx+Lx)%Lx;
+    // Idx yp = (y+dy+Ly)%Ly;
+
     Double res = 0.0;
+    int mu=1;
 
     int c = get_char(x,y);
-    if(c==1) assert(false);
-
-    int mu=2;
     if(c==2) mu+=3;
+    else if(c==1) assert(false);
 
+    Idx xp, yp;
     cshift( xp, yp, x, y, mu );
+
     res += K(x, y, mu);
     res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    mu=1;
-    if(c==2) mu+=3;
-
-    cshift( xp, yp, x, y, mu );
-    res -= K(x, y, mu);
-    res += 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    res /= std::sqrt(3.0);
 
     return res;
   }
 
-  Double TyyN( const Idx x, const Idx y ) const {
+
+  Double TC( const Idx x, const Idx y ) const {
     assert(0<=x && x<Lx);
     assert(0<=y && y<Ly);
 
-    Idx xp, yp;
+    // int c = get_char(x,y);
+    // int dy=1;
+    // int mu = 2;
+    // if(c==2) {
+    //   dy = -1;
+    //   mu = 5;
+    // }
+    // else if(c==1) assert(false);
+
+    // Idx yp = (y+dy+Ly)%Ly;
+
+    // Double res = 0.0;
+
     Double res = 0.0;
+    int mu=2;
 
     int c = get_char(x,y);
-    if(c==1) assert(false);
-
-    int mu=2;
     if(c==2) mu+=3;
+    else if(c==1) assert(false);
 
+    Idx xp, yp;
     cshift( xp, yp, x, y, mu );
+
     res += K(x, y, mu);
-    res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    mu=1;
-    if(c==2) mu+=3;
-
-    cshift( xp, yp, x, y, mu );
-    res += K(x, y, mu);
-    res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    mu=0;
-    if(c==2) mu+=3;
-
-    cshift( xp, yp, x, y, mu );
-    res -= 0.5*K(x, y, mu);
-    res += 0.25*( eps(x,y)+eps(xp,yp) ); // mu deriv
-
-    res *= 2.0/3.0;
-
-    res -= 0.25;
+    res -= 0.5*( eps(x,y)+eps(xp,yp) );
 
     return res;
   }
+
+  // Double TxxN( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+  //   int mu=0;
+
+  //   int c = get_char(x,y);
+  //   if(c==2) mu+=3;
+  //   else if(c==1) assert(false);
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   res -= 0.25;
+
+  //   return res;
+  // }
+
+  // Double TxyN( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+
+  //   int c = get_char(x,y);
+  //   if(c==1) assert(false);
+
+  //   int mu=2;
+  //   if(c==2) mu+=3;
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   mu=1;
+  //   if(c==2) mu+=3;
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= K(x, y, mu);
+  //   res += 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   res /= std::sqrt(3.0);
+
+  //   return res;
+  // }
+
+  // Double TyyN( const Idx x, const Idx y ) const {
+  //   assert(0<=x && x<Lx);
+  //   assert(0<=y && y<Ly);
+
+  //   Idx xp, yp;
+  //   Double res = 0.0;
+
+  //   int c = get_char(x,y);
+  //   if(c==1) assert(false);
+
+  //   int mu=2;
+  //   if(c==2) mu+=3;
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   mu=1;
+  //   if(c==2) mu+=3;
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res += K(x, y, mu);
+  //   res -= 0.5*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   mu=0;
+  //   if(c==2) mu+=3;
+
+  //   cshift( xp, yp, x, y, mu );
+  //   res -= 0.5*K(x, y, mu);
+  //   res += 0.25*( eps(x,y)+eps(xp,yp) ); // mu deriv
+
+  //   res *= 2.0/3.0;
+
+  //   res -= 0.25;
+
+  //   return res;
+  // }
 
   Double Txx( const Idx x, const Idx y ) const {
-    const Double txx = TxxN(x,y);
-    const Double tyy = TyyN(x,y);
-
-    return txx - 0.5*(txx+tyy);
+    const Double tA = TA(x,y);
+    const Double tB = TB(x,y);
+    const Double tC = TC(x,y);
+    return 1.0/3.0 * ( 2.0*tA - tB - tC );
   }
 
   Double Txy( const Idx x, const Idx y ) const {
-    return TxyN(x,y);
+    const Double tB = TB(x,y);
+    const Double tC = TC(x,y);
+    return 1.0/std::sqrt(3.0) * ( tC - tB );
   }
 
   Double Tyy( const Idx x, const Idx y ) const {
-    const Double txx = TxxN(x,y);
-    const Double tyy = TyyN(x,y);
-
-    return tyy - 0.5*(txx+tyy);
+    // const Double tA = TA(x,y);
+    // const Double tB = TB(x,y);
+    // const Double tC = TC(x,y);
+    return -Txx(x,y);
   }
-
 
   Double Txx_1pt( ) const {
     Double res = 0.0;
